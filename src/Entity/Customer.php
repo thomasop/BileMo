@@ -72,7 +72,7 @@ class Customer
      * @Assert\Email(
      *      message = "Veuillez entrer un email valide !"
      * )
-     * * @Assert\NotBlank(
+     * @Assert\NotBlank(
      *      message = "Ce champ est requis !"
      * )
      * @Assert\Length(
@@ -84,6 +84,9 @@ class Customer
 
     /**
      * @ORM\Column(type="json")
+     * @Assert\NotBlank(
+     *      message = "Ce champ est requis !"
+     * )
      */
     private $roles = [];
 
@@ -91,6 +94,11 @@ class Customer
      * @ORM\OneToMany(targetEntity=User::class, mappedBy="customer")
      */
     private $users;
+
+    public function __construct()
+    {
+        $this->roles = ['ROLE_ADMIN'];
+    }
 
     public function getId(): ?int
     {
