@@ -6,6 +6,7 @@ use App\Repository\CustomerRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * @ORM\Entity(repositoryClass=CustomerRepository::class)
@@ -15,7 +16,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *     message="Ce mail est deja utilisé."
  * )
  */
-class Customer
+class Customer implements UserInterface
 {
     /**
      * @ORM\Id
@@ -163,5 +164,19 @@ class Customer
         $this->roles = $roles;
 
         return $this;
+    }
+
+    public function eraseCredentials(): void
+    {
+    }
+
+    public function getUsername(): string
+    {
+        return (string) $this->mail;
+    }
+
+    public function getSalt()
+    {
+        return null;
     }
 }
