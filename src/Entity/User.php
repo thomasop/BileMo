@@ -2,12 +2,13 @@
 
 namespace App\Entity;
 
-use App\Repository\UserRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use App\Repository\UserRepository;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 /**
  * @ORM\Entity(repositoryClass=UserRepository::class)
@@ -23,6 +24,7 @@ class User
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
+     * @Groups("user_read")
      */
     private $id;
 
@@ -35,6 +37,7 @@ class User
      *      max = 100,
      *      maxMessage = "Le nom d'un utilisateur ne peut pas contenir plus que {{ limit }} caractères !"
      * )
+     * @Groups("user_read")
      */
     private $name;
 
@@ -47,6 +50,7 @@ class User
      *      max = 100,
      *      maxMessage = "Le prénom d'un utilisateur ne peut pas contenir plus que {{ limit }} caractères !"
      * )
+     * @Groups("user_read")
      */
     private $firstName;
 
@@ -62,6 +66,7 @@ class User
      *      max = 150,
      *      maxMessage = "L'email d'un utilisateur ne peut pas contenir plus que {{ limit }} caractères !"
      * )
+     * @Groups("user_read")
      */
     private $mail;
 
@@ -117,7 +122,7 @@ class User
         return $this;
     }
 
-    public function getCustomer(): ?self
+    public function getCustomer(): ?Customer
     {
         return $this->customer;
     }
