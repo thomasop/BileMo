@@ -13,6 +13,7 @@ use FOS\RestBundle\Controller\AbstractFOSRestController;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 class UserPostController extends AbstractFOSRestController
 {
@@ -40,7 +41,7 @@ class UserPostController extends AbstractFOSRestController
         $errors = $validator->validate($user);
         if (count($errors) > 0) {
             $data = $serialize->serialize($errors, 'json');
-            return $this->json($data, 400, []);
+            return new JsonResponse($data, 400, [], true);
         }
         $user->setCustomer($this->getUser());
         $emi->persist($user);
