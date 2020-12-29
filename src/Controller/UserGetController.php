@@ -12,7 +12,7 @@ use Symfony\Contracts\Cache\ItemInterface;
 class UserGetController extends AbstractFOSRestController
 {
     /**
-     * function create user
+     * function read user
      *
      * @Get(
      *     path = "/BileMo/user/{id}",
