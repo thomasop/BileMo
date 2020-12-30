@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Product;
+use App\Repository\ProductRepository;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\Controller\Annotations\Get;
 use FOS\RestBundle\Controller\Annotations\View;
@@ -19,7 +20,9 @@ class ProductController extends AbstractFOSRestController
      *     name="app_product_detail",
      *     requirements = {"id"="\d+"}
      * )
-     * @View
+     * @View(
+     *     StatusCode=200
+     * )
      *
      * @param Product $product
      * @param CacheInterface $cache
@@ -30,6 +33,33 @@ class ProductController extends AbstractFOSRestController
         return $cache->get('product_' . $product->getId(), function (ItemInterface $item) use ($product) {
             $item->expiresAfter(3600);
             return $product;
+        });
+    }
+
+    /**
+     * function read products
+     *
+     * @Get(
+     *     path = "/BileMo/product",
+     *     name="app_product_all",
+     * )
+     * @View(
+     *     StatusCode=200
+     * )
+     *
+     * @param CacheInterface $cache
+     * @param ProductRepository $productRepository
+     * @return $list
+     */
+    public function readAll(CacheInterface $cache, ProductRepository $productRepository)
+    {
+        $list = $productRepository->findAll();
+        if (empty($list)) {
+            return $this->view(['message' => 'Aucun produit'], 200);
+        }
+        return $cache->get('products', function (ItemInterface $item) use ($list) {
+            $item->expiresAfter(3600);
+            return $list;
         });
     }
 }
