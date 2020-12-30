@@ -33,6 +33,11 @@ class User
      * @Assert\NotBlank(
      *      message = "Ce champ est requis !"
      * )
+     * @Assert\Regex(
+     *     pattern="#^[^<>]*$#",
+     *     match=true,
+     *     message="Les chevrons dans le nom ne sont pas autorisés!"
+     * )
      * @Assert\Length(
      *      max = 100,
      *      maxMessage = "Le nom d'un utilisateur ne peut pas contenir plus que {{ limit }} caractères !"
@@ -45,6 +50,11 @@ class User
      * @ORM\Column(type="string", length=100)
      * @Assert\NotBlank(
      *      message = "Ce champ est requis !"
+     * )
+     * @Assert\Regex(
+     *     pattern="#^[^<>]*$#",
+     *     match=true,
+     *     message="Les chevrons dans le prenom ne sont pas autorisés!"
      * )
      * @Assert\Length(
      *      max = 100,
