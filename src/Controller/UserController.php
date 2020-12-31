@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\User;
+use App\Exception\Errors;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Contracts\Cache\ItemInterface;
@@ -12,10 +13,9 @@ use Symfony\Component\HttpFoundation\Response;
 use FOS\RestBundle\Controller\Annotations\Post;
 use FOS\RestBundle\Controller\Annotations\View;
 use FOS\RestBundle\Controller\Annotations\Delete;
-use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\Serializer\SerializerInterface;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Component\Validator\ConstraintViolationList;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 
@@ -37,8 +37,11 @@ class UserController extends AbstractFOSRestController
      * @param CacheInterface $cache
      * @return $user
      */
-    public function read(User $user, CacheInterface $cache)
+    public function read(User $user = null, CacheInterface $cache)
     {
+        if (empty($user)) {
+            throw new HttpException(400, 'L\'utilisateur demandé n\'existe pas');
+        }
         return $cache->get('user_' . $user->getId(), function (ItemInterface $item) use ($user) {
             $item->expiresAfter(3600);
             return $user;
@@ -65,7 +68,7 @@ class UserController extends AbstractFOSRestController
     {
         $list = $userRepository->findAll();
         if (empty($list)) {
-            return $this->view(['message' => 'Aucun utilisateur'], 200);
+            throw new HttpException(200, 'Aucun utilisateur');
         }
         return $cache->get('users', function (ItemInterface $item) use ($list) {
             $item->expiresAfter(3600);
@@ -86,18 +89,19 @@ class UserController extends AbstractFOSRestController
      * )
      * @ParamConverter("user", converter="fos_rest.request_body")
      *
-     * @param Request $request
-     * @param SerializerInterface $serialize
+     * @param User $user
      * @param EntityManagerInterface $em
-     * @param ValidatorInterface $validator
+     * @param ConstraintViolationList $violations
      * @return $user
      */
-    public function create(User $user, SerializerInterface $serialize, EntityManagerInterface $emi, ValidatorInterface $validator)
+    public function create(User $user, EntityManagerInterface $emi, ConstraintViolationList $violations)
     {
-        $errors = $validator->validate($user);
-        if (count($errors) > 0) {
-            $data = $serialize->serialize($errors, 'json');
-            return new JsonResponse($data, 400, [], true);
+        if (count($violations) > 0) {
+            $message = 'Le JSON envoyé contient des données non valides. Voici les erreurs que vous devez corriger: ';
+            foreach ($violations as $violation) {
+                $message .= sprintf("Champ %s: %s ", $violation->getPropertyPath(), $violation->getMessage());
+            }
+            throw new HttpException(400, $message);
         }
         $user->setCustomer($this->getUser());
         $emi->persist($user);
@@ -126,15 +130,18 @@ class UserController extends AbstractFOSRestController
      * )
      *
      * @param User $user
+     * @param EntityManagerInterface $emi
+     * @param CacheInterface $cache
      * @return $user
      */
     public function delete(User $user, EntityManagerInterface $emi, CacheInterface $cache)
     {
-        if($user) {
-            $emi->remove($user);
-            $emi->flush();
-            $cache->delete('user_'.$user->getId());
-            return $user;
-        }        
+        if(!$user) {
+            throw new HttpException(400, 'L\'utilisateur demandé n\'existe pas');
+        }
+        $emi->remove($user);
+        $emi->flush();
+        $cache->delete('user_'.$user->getId());
+        return $user;
     }
 }

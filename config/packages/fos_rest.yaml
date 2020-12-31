@@ -10,7 +10,11 @@ fos_rest:
         serialize_null: true
     body_converter:
         enabled: true
+        validate: true
+        validation_errors_argument: violations
 #    exception:
+    exception:
+        enabled: true
 #        codes:
 #            App\Exception\MyException: 403
 #        messages:
@@ -18,3 +22,4 @@ fos_rest:
     format_listener:
         rules:
             - { path: ^/, fallback_format: json, priorities: [ json ] }
+    
