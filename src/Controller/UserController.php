@@ -101,7 +101,7 @@ class UserController extends AbstractFOSRestController
             foreach ($violations as $violation) {
                 $message .= sprintf("Champ %s: %s ", $violation->getPropertyPath(), $violation->getMessage());
             }
-            throw new HttpException(400, $message);
+            throw new HttpException(404, $message);
         }
         $user->setCustomer($this->getUser());
         $emi->persist($user);
