@@ -3,7 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\User;
-use App\Exception\Errors;
+use App\Handler\UserHandler;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Contracts\Cache\ItemInterface;
@@ -94,7 +94,7 @@ class UserController extends AbstractFOSRestController
      * @param ConstraintViolationList $violations
      * @return $user
      */
-    public function create(User $user, EntityManagerInterface $emi, ConstraintViolationList $violations)
+    public function create(User $user, ConstraintViolationList $violations, UserHandler $userHandler)
     {
         if (count($violations) > 0) {
             $message = 'Le JSON envoyé contient des données non valides. Voici les erreurs que vous devez corriger: ';
@@ -104,8 +104,7 @@ class UserController extends AbstractFOSRestController
             throw new HttpException(404, $message);
         }
         $user->setCustomer($this->getUser());
-        $emi->persist($user);
-        $emi->flush();
+        $userHandler->addUser($user);
 
         return $this->view(
             $user,
@@ -134,14 +133,13 @@ class UserController extends AbstractFOSRestController
      * @param CacheInterface $cache
      * @return $user
      */
-    public function delete(User $user, EntityManagerInterface $emi, CacheInterface $cache)
+    public function delete(User $user, UserHandler $userHandler)
     {
         if(!$user) {
             throw new HttpException(400, 'L\'utilisateur demandé n\'existe pas');
         }
-        $emi->remove($user);
-        $emi->flush();
-        $cache->delete('user_'.$user->getId());
+        $userHandler->removeUser($user);
+        
         return $user;
     }
 }
