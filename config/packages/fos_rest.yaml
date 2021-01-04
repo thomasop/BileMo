@@ -22,4 +22,4 @@ fos_rest:
     format_listener:
         rules:
             - { path: ^/, priorities: ['json'], fallback_format: 'json' }
-    
+    param_fetcher_listener: true

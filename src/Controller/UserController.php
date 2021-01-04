@@ -3,16 +3,19 @@
 namespace App\Controller;
 
 use App\Entity\User;
+use App\Handler\Paging;
 use App\Handler\UserHandler;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Contracts\Cache\ItemInterface;
+use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Contracts\Cache\CacheInterface;
 use FOS\RestBundle\Controller\Annotations\Get;
 use Symfony\Component\HttpFoundation\Response;
 use FOS\RestBundle\Controller\Annotations\Post;
 use FOS\RestBundle\Controller\Annotations\View;
 use FOS\RestBundle\Controller\Annotations\Delete;
+use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -55,6 +58,18 @@ class UserController extends AbstractFOSRestController
      *     path = "/BileMo/user",
      *     name="app_user_all",
      * )
+     * @QueryParam(
+     *     name="limit",
+     *     requirements="\d+",
+     *     default="5",
+     *     description="Max number of products per page"
+     * )
+     * @QueryParam(
+     *     name="page",
+     *     requirements="\d+",
+     *     default="1",
+     *     description="Page"
+     * )
      * @View(
      *     serializerGroups={"user_read"},
      *     StatusCode=200
@@ -62,17 +77,26 @@ class UserController extends AbstractFOSRestController
      *
      * @param CacheInterface $cache
      * @param UserRepository $userRepository
-     * @return $user
+     * @param ParamFetcherInterface $paramFetcher
+     * @param PaginatorInterface $paginator
+     * @return $users
      */
-    public function readAll(CacheInterface $cache, UserRepository $userRepository)
+    public function readAll(CacheInterface $cache, UserRepository $userRepository, ParamFetcherInterface $paramFetcher, PaginatorInterface $paginator)
     {
-        $list = $userRepository->findAll();
-        if (empty($list)) {
+        $page = $paramFetcher->get('page');
+        $limit = $paramFetcher->get('limit');
+        $list = $userRepository->findAllUser($page, $limit);
+        $users = $paginator->paginate(
+            $list,
+            $page,
+            $limit
+        );
+        if (empty($users)) {
             throw new HttpException(200, 'Aucun utilisateur');
         }
-        return $cache->get('users', function (ItemInterface $item) use ($list) {
+        return $cache->get('users', function (ItemInterface $item) use ($users) {
             $item->expiresAfter(3600);
-            return $list;
+            return new Paging($users);
         });
     }
     

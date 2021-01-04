@@ -22,6 +22,23 @@ class ProductRepository extends ServiceEntityRepository
     // /**
     //  * @return Product[] Returns an array of Product objects
     //  */
+    
+    public function findAllProduct($offset, $limit)
+    {
+        // = $this->findBy(array(), array('id' => 'DESC'));
+        $query = $this->createQueryBuilder('a');
+        $query->select('a')
+              ->orderBy('a.id', 'DESC');
+        if ($offset != "1") {
+            $query->setFirstResult($offset);
+        }
+
+        if ($limit != "5") {
+            $query->setMaxResults($limit);
+        }
+        $products = $query->getQuery();
+        return $products;
+    }
     /*
     public function findByExampleField($value)
     {
