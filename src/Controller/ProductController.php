@@ -78,18 +78,21 @@ class ProductController extends AbstractFOSRestController
         $page = $paramFetcher->get('page');
         $limit = $paramFetcher->get('limit');
         $list = $productRepository->findAllProduct($page, $limit);
+        $item = $cache->get('products', function (ItemInterface $item) use ($list) {
+            $item->expiresAfter(3600);
+            return ($list);
+        });
+        //dd($item);      
         $products = $paginator->paginate(
             $list,
             $page,
             $limit
         );
-
         if (empty($products)) {
             throw new HttpException(200, 'Aucun produit');
         }
-        return $cache->get('products', function (ItemInterface $item) use ($products) {
-            $item->expiresAfter(3600);
-            return new Paging($products);
-        });
+        
+        return new Paging($products);
+            
     }
 }

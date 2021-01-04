@@ -3,8 +3,9 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use App\Repository\UserRepository;
+use JMS\Serializer\Annotation as Serializer;
 use Doctrine\Common\Collections\ArrayCollection;
-use JMS\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
@@ -15,6 +16,7 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
  *     errorPath="mail",
  *     message="Ce mail est deja utilisé."
  * )
+ * @Serializer\ExclusionPolicy("ALL")
  */
 class User
 {
@@ -22,7 +24,7 @@ class User
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
-     * @Groups("user_read")
+     * @Serializer\Expose
      */
     private $id;
 
@@ -40,7 +42,7 @@ class User
      *      max = 100,
      *      maxMessage = "Le nom d'un utilisateur ne peut pas contenir plus que {{ limit }} caractères !"
      * )
-     * @Groups("user_read")
+     * @Serializer\Expose
      */
     private $name;
 
@@ -58,7 +60,7 @@ class User
      *      max = 100,
      *      maxMessage = "Le prénom d'un utilisateur ne peut pas contenir plus que {{ limit }} caractères !"
      * )
-     * @Groups("user_read")
+     * @Serializer\Expose
      */
     private $firstName;
 
@@ -74,7 +76,7 @@ class User
      *      max = 150,
      *      maxMessage = "L'email d'un utilisateur ne peut pas contenir plus que {{ limit }} caractères !"
      * )
-     * @Groups("user_read")
+     * @Serializer\Expose
      */
     private $mail;
 

@@ -5,8 +5,10 @@ namespace App\Controller;
 use App\Entity\User;
 use App\Handler\Paging;
 use App\Handler\UserHandler;
+use JMS\Serializer\SerializerInterface;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use FOS\RestBundle\Request\ParamFetcher;
 use Symfony\Contracts\Cache\ItemInterface;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Contracts\Cache\CacheInterface;
@@ -15,7 +17,7 @@ use Symfony\Component\HttpFoundation\Response;
 use FOS\RestBundle\Controller\Annotations\Post;
 use FOS\RestBundle\Controller\Annotations\View;
 use FOS\RestBundle\Controller\Annotations\Delete;
-use FOS\RestBundle\Request\ParamFetcherInterface;
+use FOS\RestBundle\Controller\Annotations\QueryParam;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -33,7 +35,7 @@ class UserController extends AbstractFOSRestController
      *     requirements = {"id"="\d+"}
      * )
      * @View(
-     *     serializerGroups={"user_read"},
+     *     serializerGroups = {"user_read"},
      * )
      *
      * @param User $user
@@ -71,7 +73,6 @@ class UserController extends AbstractFOSRestController
      *     description="Page"
      * )
      * @View(
-     *     serializerGroups={"user_read"},
      *     StatusCode=200
      * )
      *
@@ -81,8 +82,9 @@ class UserController extends AbstractFOSRestController
      * @param PaginatorInterface $paginator
      * @return $users
      */
-    public function readAll(CacheInterface $cache, UserRepository $userRepository, ParamFetcherInterface $paramFetcher, PaginatorInterface $paginator)
+    public function readAll(CacheInterface $cache, UserRepository $userRepository, ParamFetcher $paramFetcher, PaginatorInterface $paginator)
     {
+        
         $page = $paramFetcher->get('page');
         $limit = $paramFetcher->get('limit');
         $list = $userRepository->findAllUser($page, $limit);
@@ -94,10 +96,9 @@ class UserController extends AbstractFOSRestController
         if (empty($users)) {
             throw new HttpException(200, 'Aucun utilisateur');
         }
-        return $cache->get('users', function (ItemInterface $item) use ($users) {
-            $item->expiresAfter(3600);
             return new Paging($users);
-        });
+        
+
     }
     
     /**

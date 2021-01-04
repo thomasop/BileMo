@@ -29,14 +29,15 @@ class ProductRepository extends ServiceEntityRepository
         $query = $this->createQueryBuilder('a');
         $query->select('a')
               ->orderBy('a.id', 'DESC');
-        if ($offset != "1") {
+        if ($offset != "") {
             $query->setFirstResult($offset);
         }
 
-        if ($limit != "5") {
+        if ($limit != "") {
             $query->setMaxResults($limit);
         }
         $products = $query->getQuery();
+
         return $products;
     }
     /*
