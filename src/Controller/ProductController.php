@@ -82,7 +82,6 @@ class ProductController extends AbstractFOSRestController
             $item->expiresAfter(3600);
             return ($list);
         });
-        //dd($item);      
         $products = $paginator->paginate(
             $list,
             $page,
@@ -91,8 +90,7 @@ class ProductController extends AbstractFOSRestController
         if (empty($products)) {
             throw new HttpException(200, 'Aucun produit');
         }
-        
         return new Paging($products);
-            
+
     }
 }

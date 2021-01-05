@@ -128,6 +128,12 @@
             "config/packages/prod/jms_serializer.yaml"
         ]
     },
+    "knplabs/knp-components": {
+        "version": "v3.0.0"
+    },
+    "knplabs/knp-paginator-bundle": {
+        "version": "v5.4.2"
+    },
     "laminas/laminas-code": {
         "version": "3.5.1"
     },
@@ -136,12 +142,6 @@
     },
     "laminas/laminas-zendframework-bridge": {
         "version": "1.1.1"
-    },
-    "knplabs/knp-components": {
-        "version": "v3.0.0"
-    },
-    "knplabs/knp-paginator-bundle": {
-        "version": "v5.4.2"
     },
     "lcobucci/jwt": {
         "version": "3.4.2"
@@ -235,6 +235,9 @@
     },
     "symfony/event-dispatcher-contracts": {
         "version": "v2.2.0"
+    },
+    "symfony/expression-language": {
+        "version": "v5.2.1"
     },
     "symfony/filesystem": {
         "version": "v5.2.1"
@@ -375,6 +378,9 @@
     "symfony/security-http": {
         "version": "v5.2.1"
     },
+    "symfony/serializer-pack": {
+        "version": "v1.0.4"
+    },
     "symfony/service-contracts": {
         "version": "v2.2.0"
     },
@@ -424,6 +430,21 @@
     },
     "twig/twig": {
         "version": "v3.1.1"
+    },
+    "willdurand/hateoas": {
+        "version": "3.6.0"
+    },
+    "willdurand/hateoas-bundle": {
+        "version": "2.0",
+        "recipe": {
+            "repo": "github.com/symfony/recipes-contrib",
+            "branch": "master",
+            "version": "2.0",
+            "ref": "34df072c6edaa61ae19afb2f3a239f272fecab87"
+        },
+        "files": [
+            "config/packages/bazinga_hateoas.yaml"
+        ]
     },
     "willdurand/jsonp-callback-validator": {
         "version": "v1.1.0"

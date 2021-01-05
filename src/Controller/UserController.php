@@ -5,7 +5,6 @@ namespace App\Controller;
 use App\Entity\User;
 use App\Handler\Paging;
 use App\Handler\UserHandler;
-use JMS\Serializer\SerializerInterface;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use FOS\RestBundle\Request\ParamFetcher;
@@ -14,6 +13,7 @@ use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Contracts\Cache\CacheInterface;
 use FOS\RestBundle\Controller\Annotations\Get;
 use Symfony\Component\HttpFoundation\Response;
+use App\Exception\ResourceValidationException;
 use FOS\RestBundle\Controller\Annotations\Post;
 use FOS\RestBundle\Controller\Annotations\View;
 use FOS\RestBundle\Controller\Annotations\Delete;
@@ -34,9 +34,7 @@ class UserController extends AbstractFOSRestController
      *     name="app_user_detail",
      *     requirements = {"id"="\d+"}
      * )
-     * @View(
-     *     serializerGroups = {"user_read"},
-     * )
+     * @View
      *
      * @param User $user
      * @param CacheInterface $cache
@@ -84,10 +82,14 @@ class UserController extends AbstractFOSRestController
      */
     public function readAll(CacheInterface $cache, UserRepository $userRepository, ParamFetcher $paramFetcher, PaginatorInterface $paginator)
     {
-        
+
         $page = $paramFetcher->get('page');
         $limit = $paramFetcher->get('limit');
         $list = $userRepository->findAllUser($page, $limit);
+        $item = $cache->get('products', function (ItemInterface $item) use ($list) {
+            $item->expiresAfter(3600);
+            return ($list);
+        });
         $users = $paginator->paginate(
             $list,
             $page,
@@ -96,11 +98,10 @@ class UserController extends AbstractFOSRestController
         if (empty($users)) {
             throw new HttpException(200, 'Aucun utilisateur');
         }
-            return new Paging($users);
-        
+        return new Paging($users);
 
     }
-    
+
     /**
      * function create user
      *
@@ -139,7 +140,7 @@ class UserController extends AbstractFOSRestController
             ]
         );
     }
-    
+
     /**
      * function delete user
      *
@@ -160,11 +161,11 @@ class UserController extends AbstractFOSRestController
      */
     public function delete(User $user, UserHandler $userHandler)
     {
-        if(!$user) {
+        if (!$user) {
             throw new HttpException(400, 'L\'utilisateur demandé n\'existe pas');
         }
         $userHandler->removeUser($user);
-        
+
         return $user;
     }
 }

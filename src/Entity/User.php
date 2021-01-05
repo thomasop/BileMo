@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use Hateoas\Configuration\Annotation as Hateoas;
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\UserRepository;
 use JMS\Serializer\Annotation as Serializer;
@@ -15,6 +16,36 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
  *     fields={"mail"},
  *     errorPath="mail",
  *     message="Ce mail est deja utilisé."
+ * )
+ * @Hateoas\Relation(
+ *      "self",
+ *      href = @Hateoas\Route(
+ *          "app_user_detail",
+ *          parameters = { "id" = "expr(object.getId())" },
+ *          absolute = true
+ *      )
+ * )
+ * @Hateoas\Relation(
+ *     "list",
+ *     href = @Hateoas\Route(
+ *          "app_user_all",
+ *          absolute = true
+ *      )
+ * )
+ * @Hateoas\Relation(
+ *     "create",
+ *     href = @Hateoas\Route(
+ *          "app_user_post",
+ *          absolute = true
+ *      )
+ * )
+ * @Hateoas\Relation(
+ *     "delete",
+ *     href = @Hateoas\Route(
+ *          "app_user_delete",
+ *          parameters = { "id" = "expr(object.getId())" },
+ *          absolute = true
+ *      )
  * )
  * @Serializer\ExclusionPolicy("ALL")
  */
