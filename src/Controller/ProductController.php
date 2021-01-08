@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Product;
+use App\Exception\IdNotFoundException;
 use App\Handler\Paging;
 use App\Repository\ProductRepository;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
@@ -11,7 +12,6 @@ use FOS\RestBundle\Controller\Annotations\QueryParam;
 use FOS\RestBundle\Controller\Annotations\View;
 use FOS\RestBundle\Request\ParamFetcher;
 use Knp\Component\Pager\PaginatorInterface;
-use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 
@@ -33,10 +33,10 @@ class ProductController extends AbstractFOSRestController
      * @param CacheInterface $cache
      * @return $product
      */
-    public function read(Product $product, CacheInterface $cache)
+    public function read(Product $product = null, CacheInterface $cache)
     {
         if (!$product) {
-            throw new HttpException(400, 'Le produit demandé n\'existe pas');
+            throw new IdNotFoundException('Le produit demandé n\'existe pas');
         }
         return $cache->get('product_' . $product->getId(), function (ItemInterface $item) use ($product) {
             $item->expiresAfter(3600);
@@ -87,8 +87,8 @@ class ProductController extends AbstractFOSRestController
             $page,
             $limit
         );
-        if (empty($products)) {
-            throw new HttpException(200, 'Aucun produit');
+        if ($products->getTotalItemCount() == 0) {
+            return $this->view(['message' => 'Aucun produit'], 200);
         }
         return new Paging($products);
 

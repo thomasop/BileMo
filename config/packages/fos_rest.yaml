@@ -12,9 +12,10 @@ fos_rest:
         enabled: true
         validate: true
         validation_errors_argument: violations
-#    exception:
     exception:
         enabled: true
+        codes:
+           { App\Exception\ResourceValidationException: 400, App\Exception\IdNotFoundException: 400 }
 #        codes:
 #            App\Exception\MyException: 403
 #        messages:

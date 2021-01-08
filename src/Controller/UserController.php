@@ -3,26 +3,27 @@
 namespace App\Controller;
 
 use App\Entity\User;
+use App\Exception\IdNotFoundException;
+use App\Exception\ResourceValidationException;
 use App\Handler\Paging;
 use App\Handler\UserHandler;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use FOS\RestBundle\Request\ParamFetcher;
-use Symfony\Contracts\Cache\ItemInterface;
-use Knp\Component\Pager\PaginatorInterface;
-use Symfony\Contracts\Cache\CacheInterface;
-use FOS\RestBundle\Controller\Annotations\Get;
-use Symfony\Component\HttpFoundation\Response;
-use App\Exception\ResourceValidationException;
-use FOS\RestBundle\Controller\Annotations\Post;
-use FOS\RestBundle\Controller\Annotations\View;
-use FOS\RestBundle\Controller\Annotations\Delete;
-use FOS\RestBundle\Controller\Annotations\QueryParam;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
-use Symfony\Component\Validator\ConstraintViolationList;
-use Symfony\Component\HttpKernel\Exception\HttpException;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use FOS\RestBundle\Controller\Annotations\Delete;
+use FOS\RestBundle\Controller\Annotations\Get;
+use FOS\RestBundle\Controller\Annotations\Post;
+use FOS\RestBundle\Controller\Annotations\QueryParam;
+use FOS\RestBundle\Controller\Annotations\View;
+use FOS\RestBundle\Request\ParamFetcher;
+use Knp\Component\Pager\PaginatorInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Validator\ConstraintViolationList;
+use Symfony\Contracts\Cache\CacheInterface;
+use Symfony\Contracts\Cache\ItemInterface;
 
 class UserController extends AbstractFOSRestController
 {
@@ -43,7 +44,7 @@ class UserController extends AbstractFOSRestController
     public function read(User $user = null, CacheInterface $cache)
     {
         if (empty($user)) {
-            throw new HttpException(400, 'L\'utilisateur demandé n\'existe pas');
+            throw new IdNotFoundException('L\'utilisateur n\'éxiste pas');
         }
         return $cache->get('user_' . $user->getId(), function (ItemInterface $item) use ($user) {
             $item->expiresAfter(3600);
@@ -95,8 +96,8 @@ class UserController extends AbstractFOSRestController
             $page,
             $limit
         );
-        if (empty($users)) {
-            throw new HttpException(200, 'Aucun utilisateur');
+        if ($users->getTotalItemCount() == 0) {
+            return $this->view(['message' => 'Aucun utilisateur'], 200);
         }
         return new Paging($users);
 
@@ -110,7 +111,6 @@ class UserController extends AbstractFOSRestController
      *     name="app_user_post"
      * )
      * @View(
-     *     serializerGroups={"user_read"},
      *     StatusCode=201
      * )
      * @ParamConverter("user", converter="fos_rest.request_body")
@@ -127,16 +127,15 @@ class UserController extends AbstractFOSRestController
             foreach ($violations as $violation) {
                 $message .= sprintf("Champ %s: %s ", $violation->getPropertyPath(), $violation->getMessage());
             }
-            throw new HttpException(404, $message);
+            throw new ResourceValidationException($message);
         }
         $user->setCustomer($this->getUser());
         $userHandler->addUser($user);
-
         return $this->view(
             $user,
             Response::HTTP_CREATED,
             [
-                'Location' => $this->generateUrl('app_user_detail', ['id' => $user->getId()], UrlGeneratorInterface::ABSOLUTE_URL)
+                'Location' => $this->generateUrl('app_user_detail', ['id' => $user->getId()], UrlGeneratorInterface::ABSOLUTE_URL),
             ]
         );
     }
@@ -150,7 +149,6 @@ class UserController extends AbstractFOSRestController
      *     requirements = {"id"="\d+"}
      * )
      * @View(
-     *     serializerGroups={"user_read"},
      *     StatusCode=204
      * )
      *
@@ -159,13 +157,12 @@ class UserController extends AbstractFOSRestController
      * @param CacheInterface $cache
      * @return $user
      */
-    public function delete(User $user, UserHandler $userHandler)
+    public function delete(User $user = null, UserHandler $userHandler)
     {
         if (!$user) {
-            throw new HttpException(400, 'L\'utilisateur demandé n\'existe pas');
+            throw new IdNotFoundException('L\'utilisateur n\'éxiste pas');
         }
         $userHandler->removeUser($user);
-
-        return $user;
+        return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
 }

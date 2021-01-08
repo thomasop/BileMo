@@ -7,7 +7,6 @@ class Paging
     public $data;
     public $meta;
 
-    
     public function __construct($data)
     {
         $this->data = $data->getItems();
@@ -20,5 +19,5 @@ class Paging
     {
         $this->meta[$name] = $value;
     }
-    
+
 }

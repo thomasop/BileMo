@@ -26,6 +26,6 @@ class UserHandler
     {
         $this->emi->remove($user);
         $this->emi->flush();
-        $this->cache->delete('user_'.$user->getId());
+        $this->cache->delete('user_' . $user->getId());
     }
 }
