@@ -24,6 +24,9 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
+use Nelmio\ApiDocBundle\Annotation\Model;
+use Nelmio\ApiDocBundle\Annotation\Security;
+use Swagger\Annotations as SWG;
 
 class UserController extends AbstractFOSRestController
 {
@@ -36,6 +39,16 @@ class UserController extends AbstractFOSRestController
      *     requirements = {"id"="\d+"}
      * )
      * @View
+     * @SWG\Response(
+     *     response=200,
+     *     description="Return user",
+     *     @SWG\Schema(
+     *         type="array",
+     *         @SWG\Items(ref=@Model(type=User::class))
+     *     )
+     * )
+     * @SWG\Tag(name="user")
+     * @Security(name="Bearer")
      *
      * @param User $user
      * @param CacheInterface $cache
@@ -74,6 +87,16 @@ class UserController extends AbstractFOSRestController
      * @View(
      *     StatusCode=200
      * )
+     * @SWG\Response(
+     *     response=200,
+     *     description="Return all users",
+     *     @SWG\Schema(
+     *         type="array",
+     *         @SWG\Items(ref=@Model(type=User::class))
+     *     )
+     * )
+     * @SWG\Tag(name="user")
+     * @Security(name="Bearer")
      *
      * @param CacheInterface $cache
      * @param UserRepository $userRepository
@@ -114,6 +137,16 @@ class UserController extends AbstractFOSRestController
      *     StatusCode=201
      * )
      * @ParamConverter("user", converter="fos_rest.request_body")
+     * @SWG\Response(
+     *     response=201,
+     *     description="Return user",
+     *     @SWG\Schema(
+     *         type="array",
+     *         @SWG\Items(ref=@Model(type=User::class))
+     *     )
+     * )
+     * @SWG\Tag(name="user")
+     * @Security(name="Bearer")
      *
      * @param User $user
      * @param EntityManagerInterface $em
@@ -151,6 +184,16 @@ class UserController extends AbstractFOSRestController
      * @View(
      *     StatusCode=204
      * )
+     * @SWG\Response(
+     *     response=204,
+     *     description="Return 204 response",
+     *     @SWG\Schema(
+     *         type="array",
+     *         @SWG\Items(ref=@Model(type=User::class))
+     *     )
+     * )
+     * @SWG\Tag(name="user")
+     * @Security(name="Bearer")
      *
      * @param User $user
      * @param EntityManagerInterface $emi

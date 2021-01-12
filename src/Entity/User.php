@@ -18,12 +18,12 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
  *     message="Ce mail est deja utilisé."
  * )
  * @Hateoas\Relation(
- *      "self",
- *      href = @Hateoas\Route(
- *          "app_user_detail",
- *          parameters = { "id" = "expr(object.getId())" },
- *          absolute = true
- *      )
+ *     "self",
+ *     href = @Hateoas\Route(
+ *         "app_user_detail",
+ *         parameters = { "id" = "expr(object.getId())" },
+ *         absolute = true
+ *     )
  * )
  * @Hateoas\Relation(
  *     "list",

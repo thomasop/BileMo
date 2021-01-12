@@ -1,3 +1,8 @@
 api_login_check:
     path: /BileMo/login_check
     methods:  ['POST']
+
+app.swagger_ui:
+    path: /BileMo/doc
+    methods: GET
+    defaults: { _controller: nelmio_api_doc.controller.swagger_ui }

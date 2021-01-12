@@ -14,6 +14,9 @@ use FOS\RestBundle\Request\ParamFetcher;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
+use Nelmio\ApiDocBundle\Annotation\Model;
+use Nelmio\ApiDocBundle\Annotation\Security;
+use Swagger\Annotations as SWG;
 
 class ProductController extends AbstractFOSRestController
 {
@@ -28,7 +31,17 @@ class ProductController extends AbstractFOSRestController
      * @View(
      *     StatusCode=200
      * )
-     *
+     * @SWG\Response(
+     *     response=200,
+     *     description="Return product",
+     *     @SWG\Schema(
+     *         type="array",
+     *         @SWG\Items(ref=@Model(type=Product::class))
+     *     )
+     * )
+     * @SWG\Tag(name="product")
+     * @Security(name="Bearer")
+     * 
      * @param Product $product
      * @param CacheInterface $cache
      * @return $product
@@ -66,6 +79,16 @@ class ProductController extends AbstractFOSRestController
      * @View(
      *     StatusCode=200
      * )
+     * @SWG\Response(
+     *     response=200,
+     *     description="Return all products",
+     *     @SWG\Schema(
+     *         type="array",
+     *         @SWG\Items(ref=@Model(type=Product::class))
+     *     )
+     * )
+     * @SWG\Tag(name="product")
+     * @Security(name="Bearer")
      *
      * @param CacheInterface $cache
      * @param ProductRepository $productRepository
