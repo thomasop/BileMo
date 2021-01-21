@@ -2,21 +2,24 @@
 
 namespace App\Controller;
 
+use Test;
 use App\Entity\Product;
-use App\Exception\IdNotFoundException;
 use App\Handler\Paging;
+use Swagger\Annotations as SWG;
 use App\Repository\ProductRepository;
-use FOS\RestBundle\Controller\AbstractFOSRestController;
-use FOS\RestBundle\Controller\Annotations\Get;
-use FOS\RestBundle\Controller\Annotations\QueryParam;
-use FOS\RestBundle\Controller\Annotations\View;
+use App\Exception\IdNotFoundException;
 use FOS\RestBundle\Request\ParamFetcher;
+use Nelmio\ApiDocBundle\Annotation\Model;
+use Symfony\Contracts\Cache\ItemInterface;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Contracts\Cache\CacheInterface;
-use Symfony\Contracts\Cache\ItemInterface;
-use Nelmio\ApiDocBundle\Annotation\Model;
 use Nelmio\ApiDocBundle\Annotation\Security;
-use Swagger\Annotations as SWG;
+use FOS\RestBundle\Controller\Annotations\Get;
+use Symfony\Component\HttpFoundation\Response;
+use FOS\RestBundle\Controller\Annotations\View;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use FOS\RestBundle\Controller\Annotations\QueryParam;
+use FOS\RestBundle\Controller\AbstractFOSRestController;
 
 class ProductController extends AbstractFOSRestController
 {
@@ -51,10 +54,15 @@ class ProductController extends AbstractFOSRestController
         if (!$product) {
             throw new IdNotFoundException('Le produit demandé n\'existe pas');
         }
-        return $cache->get('product_' . $product->getId(), function (ItemInterface $item) use ($product) {
-            $item->expiresAfter(3600);
-            return $product;
-        });
+        $response = new Response();
+        $response->setPublic();
+        $response->setMaxAge(3600);
+        $response->headers->addCacheControlDirective('must-revalidate', true);
+
+        $view = $this->view($product);
+        $view->setResponse($response);
+
+        return $this->handleView($view);
     }
 
     /**
@@ -96,15 +104,11 @@ class ProductController extends AbstractFOSRestController
      * @param PaginatorInterface $paginator
      * @return $products
      */
-    public function readAll(CacheInterface $cache, ProductRepository $productRepository, ParamFetcher $paramFetcher, PaginatorInterface $paginator)
+    public function readAll(ProductRepository $productRepository, ParamFetcher $paramFetcher, PaginatorInterface $paginator)
     {
         $page = $paramFetcher->get('page');
         $limit = $paramFetcher->get('limit');
-        $list = $productRepository->findAllProduct($page, $limit);
-        $item = $cache->get('products', function (ItemInterface $item) use ($list) {
-            $item->expiresAfter(3600);
-            return ($list);
-        });
+        $list = $productRepository->findAll();
         $products = $paginator->paginate(
             $list,
             $page,
@@ -114,6 +118,5 @@ class ProductController extends AbstractFOSRestController
             return $this->view(['message' => 'Aucun produit'], 200);
         }
         return new Paging($products);
-
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\CacheKernel;
 use App\Entity\User;
 use App\Exception\IdNotFoundException;
 use App\Exception\ResourceValidationException;
@@ -27,6 +28,7 @@ use Symfony\Contracts\Cache\ItemInterface;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use Nelmio\ApiDocBundle\Annotation\Security;
 use Swagger\Annotations as SWG;
+use Symfony\Component\HttpFoundation\Request;
 
 class UserController extends AbstractFOSRestController
 {
@@ -54,15 +56,20 @@ class UserController extends AbstractFOSRestController
      * @param CacheInterface $cache
      * @return $user
      */
-    public function read(User $user = null, CacheInterface $cache)
+    public function read(User $user = null)
     {
         if (empty($user)) {
             throw new IdNotFoundException('L\'utilisateur n\'éxiste pas');
         }
-        return $cache->get('user_' . $user->getId(), function (ItemInterface $item) use ($user) {
-            $item->expiresAfter(3600);
-            return $user;
-        });
+        $response = new Response();
+        $response->setPublic();
+        $response->setMaxAge(3600);
+        $response->headers->addCacheControlDirective('must-revalidate', true);
+
+        $view = $this->view($user);
+        $view->setResponse($response);
+
+        return $this->handleView($view);
     }
 
     /**
@@ -104,16 +111,11 @@ class UserController extends AbstractFOSRestController
      * @param PaginatorInterface $paginator
      * @return $users
      */
-    public function readAll(CacheInterface $cache, UserRepository $userRepository, ParamFetcher $paramFetcher, PaginatorInterface $paginator)
+    public function readAll(UserRepository $userRepository, ParamFetcher $paramFetcher, PaginatorInterface $paginator)
     {
-
         $page = $paramFetcher->get('page');
         $limit = $paramFetcher->get('limit');
-        $list = $userRepository->findAllUser($page, $limit);
-        $item = $cache->get('products', function (ItemInterface $item) use ($list) {
-            $item->expiresAfter(3600);
-            return ($list);
-        });
+        $list = $userRepository->findAll();
         $users = $paginator->paginate(
             $list,
             $page,
@@ -123,7 +125,6 @@ class UserController extends AbstractFOSRestController
             return $this->view(['message' => 'Aucun utilisateur'], 200);
         }
         return new Paging($users);
-
     }
 
     /**
@@ -200,7 +201,7 @@ class UserController extends AbstractFOSRestController
      * @param CacheInterface $cache
      * @return $user
      */
-    public function delete(User $user = null, UserHandler $userHandler)
+    public function delete(User $user = null, UserHandler $userHandler, CacheKernel $cache, Request $request)
     {
         if (!$user) {
             throw new IdNotFoundException('L\'utilisateur n\'éxiste pas');

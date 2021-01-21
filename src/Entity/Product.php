@@ -77,6 +77,11 @@ class Product
      */
     private $brand;
 
+    public function __toString()
+    {
+        return $this->getModel();
+    }
+
     public function getId(): ?int
     {
         return $this->id;
