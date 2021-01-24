@@ -22,22 +22,7 @@ class UserRepository extends ServiceEntityRepository
     // /**
     //  * @return User[] Returns an array of User objects
     //  */
-    public function findAllUser($offset, $limit)
-    {
-        // = $this->findBy(array(), array('id' => 'DESC'));
-        $query = $this->createQueryBuilder('a');
-        $query->select('a')
-              ->orderBy('a.id', 'DESC');
-        if ($offset != "") {
-            $query->setFirstResult($offset);
-        }
 
-        if ($limit != "") {
-            $query->setMaxResults($limit);
-        }
-        $users = $query->getQuery();
-        return $users;
-    }
     /*
     public function findByExampleField($value)
     {

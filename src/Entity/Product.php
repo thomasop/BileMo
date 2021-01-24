@@ -2,11 +2,11 @@
 
 namespace App\Entity;
 
-use Hateoas\Configuration\Annotation as Hateoas;
-use Doctrine\ORM\Mapping as ORM;
 use App\Repository\ProductRepository;
-use Symfony\Component\Validator\Constraints as Assert;
+use Doctrine\ORM\Mapping as ORM;
+use Hateoas\Configuration\Annotation as Hateoas;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass=ProductRepository::class)

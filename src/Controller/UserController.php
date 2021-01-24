@@ -6,6 +6,7 @@ use App\CacheKernel;
 use App\Entity\User;
 use App\Exception\IdNotFoundException;
 use App\Exception\ResourceValidationException;
+use App\Handler\Cache;
 use App\Handler\Paging;
 use App\Handler\UserHandler;
 use App\Repository\UserRepository;
@@ -18,22 +19,20 @@ use FOS\RestBundle\Controller\Annotations\QueryParam;
 use FOS\RestBundle\Controller\Annotations\View;
 use FOS\RestBundle\Request\ParamFetcher;
 use Knp\Component\Pager\PaginatorInterface;
+use Nelmio\ApiDocBundle\Annotation\Model;
+use Nelmio\ApiDocBundle\Annotation\Security;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
+use Swagger\Annotations as SWG;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Contracts\Cache\CacheInterface;
-use Symfony\Contracts\Cache\ItemInterface;
-use Nelmio\ApiDocBundle\Annotation\Model;
-use Nelmio\ApiDocBundle\Annotation\Security;
-use Swagger\Annotations as SWG;
-use Symfony\Component\HttpFoundation\Request;
 
 class UserController extends AbstractFOSRestController
 {
     /**
-     * function read user
+     * function read user.
      *
      * @Get(
      *     path = "/BileMo/user/{id}",
@@ -52,28 +51,23 @@ class UserController extends AbstractFOSRestController
      * @SWG\Tag(name="user")
      * @Security(name="Bearer")
      *
-     * @param User $user
+     * @param User           $user
      * @param CacheInterface $cache
+     *
      * @return $user
      */
-    public function read(User $user = null)
+    public function read(User $user = null, Cache $cache)
     {
         if (empty($user)) {
             throw new IdNotFoundException('L\'utilisateur n\'éxiste pas');
         }
-        $response = new Response();
-        $response->setPublic();
-        $response->setMaxAge(3600);
-        $response->headers->addCacheControlDirective('must-revalidate', true);
-
         $view = $this->view($user);
-        $view->setResponse($response);
-
+        $cache->save($view);
         return $this->handleView($view);
     }
 
     /**
-     * function read users
+     * function read users.
      *
      * @Get(
      *     path = "/BileMo/user",
@@ -105,10 +99,9 @@ class UserController extends AbstractFOSRestController
      * @SWG\Tag(name="user")
      * @Security(name="Bearer")
      *
-     * @param CacheInterface $cache
-     * @param UserRepository $userRepository
+     * @param CacheInterface        $cache
      * @param ParamFetcherInterface $paramFetcher
-     * @param PaginatorInterface $paginator
+     *
      * @return $users
      */
     public function readAll(UserRepository $userRepository, ParamFetcher $paramFetcher, PaginatorInterface $paginator)
@@ -121,14 +114,15 @@ class UserController extends AbstractFOSRestController
             $page,
             $limit
         );
-        if ($users->getTotalItemCount() == 0) {
+        if (0 == $users->getTotalItemCount()) {
             return $this->view(['message' => 'Aucun utilisateur'], 200);
         }
+
         return new Paging($users);
     }
 
     /**
-     * function create user
+     * function create user.
      *
      * @Post(
      *     path = "/BileMo/user",
@@ -149,9 +143,8 @@ class UserController extends AbstractFOSRestController
      * @SWG\Tag(name="user")
      * @Security(name="Bearer")
      *
-     * @param User $user
      * @param EntityManagerInterface $em
-     * @param ConstraintViolationList $violations
+     *
      * @return $user
      */
     public function create(User $user, ConstraintViolationList $violations, UserHandler $userHandler)
@@ -159,12 +152,13 @@ class UserController extends AbstractFOSRestController
         if (count($violations) > 0) {
             $message = 'Le JSON envoyé contient des données non valides. Voici les erreurs que vous devez corriger: ';
             foreach ($violations as $violation) {
-                $message .= sprintf("Champ %s: %s ", $violation->getPropertyPath(), $violation->getMessage());
+                $message .= sprintf('Champ %s: %s ', $violation->getPropertyPath(), $violation->getMessage());
             }
             throw new ResourceValidationException($message);
         }
         $user->setCustomer($this->getUser());
         $userHandler->addUser($user);
+
         return $this->view(
             $user,
             Response::HTTP_CREATED,
@@ -175,7 +169,7 @@ class UserController extends AbstractFOSRestController
     }
 
     /**
-     * function delete user
+     * function delete user.
      *
      * @Delete(
      *     path = "/BileMo/user/{id}",
@@ -196,17 +190,19 @@ class UserController extends AbstractFOSRestController
      * @SWG\Tag(name="user")
      * @Security(name="Bearer")
      *
-     * @param User $user
+     * @param User                   $user
      * @param EntityManagerInterface $emi
-     * @param CacheInterface $cache
+     * @param CacheInterface         $cache
+     *
      * @return $user
      */
-    public function delete(User $user = null, UserHandler $userHandler, CacheKernel $cache, Request $request)
+    public function delete(User $user = null, UserHandler $userHandler)
     {
         if (!$user) {
             throw new IdNotFoundException('L\'utilisateur n\'éxiste pas');
         }
         $userHandler->removeUser($user);
+
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
 }

@@ -19,5 +19,4 @@ class Paging
     {
         $this->meta[$name] = $value;
     }
-
 }

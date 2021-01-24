@@ -2,29 +2,27 @@
 
 namespace App\Controller;
 
-use Test;
 use App\Entity\Product;
-use App\Handler\Paging;
-use Swagger\Annotations as SWG;
-use App\Repository\ProductRepository;
 use App\Exception\IdNotFoundException;
-use FOS\RestBundle\Request\ParamFetcher;
-use Nelmio\ApiDocBundle\Annotation\Model;
-use Symfony\Contracts\Cache\ItemInterface;
-use Knp\Component\Pager\PaginatorInterface;
-use Symfony\Contracts\Cache\CacheInterface;
-use Nelmio\ApiDocBundle\Annotation\Security;
-use FOS\RestBundle\Controller\Annotations\Get;
-use Symfony\Component\HttpFoundation\Response;
-use FOS\RestBundle\Controller\Annotations\View;
-use Symfony\Component\HttpFoundation\JsonResponse;
-use FOS\RestBundle\Controller\Annotations\QueryParam;
+use App\Handler\Cache;
+use App\Handler\Paging;
+use App\Repository\ProductRepository;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
+use FOS\RestBundle\Controller\Annotations\Get;
+use FOS\RestBundle\Controller\Annotations\QueryParam;
+use FOS\RestBundle\Controller\Annotations\View;
+use FOS\RestBundle\Request\ParamFetcher;
+use Knp\Component\Pager\PaginatorInterface;
+use Nelmio\ApiDocBundle\Annotation\Model;
+use Nelmio\ApiDocBundle\Annotation\Security;
+use Swagger\Annotations as SWG;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Contracts\Cache\CacheInterface;
 
 class ProductController extends AbstractFOSRestController
 {
     /**
-     * function read product
+     * function read product.
      *
      * @Get(
      *     path = "/BileMo/product/{id}",
@@ -44,29 +42,25 @@ class ProductController extends AbstractFOSRestController
      * )
      * @SWG\Tag(name="product")
      * @Security(name="Bearer")
-     * 
-     * @param Product $product
+     *
+     * @param Product        $product
      * @param CacheInterface $cache
+     *
      * @return $product
      */
-    public function read(Product $product = null, CacheInterface $cache)
+    public function read(Product $product = null, Cache $cache)
     {
         if (!$product) {
-            throw new IdNotFoundException('Le produit demandé n\'existe pas');
+            throw new IdNotFoundException('Le produit demandé n\'éxiste pas');
         }
-        $response = new Response();
-        $response->setPublic();
-        $response->setMaxAge(3600);
-        $response->headers->addCacheControlDirective('must-revalidate', true);
-
         $view = $this->view($product);
-        $view->setResponse($response);
+        $cache->save($view);
 
         return $this->handleView($view);
     }
 
     /**
-     * function read products
+     * function read products.
      *
      * @Get(
      *     path = "/BileMo/product",
@@ -98,10 +92,9 @@ class ProductController extends AbstractFOSRestController
      * @SWG\Tag(name="product")
      * @Security(name="Bearer")
      *
-     * @param CacheInterface $cache
-     * @param ProductRepository $productRepository
+     * @param CacheInterface        $cache
      * @param ParamFetcherInterface $paramFetcher
-     * @param PaginatorInterface $paginator
+     *
      * @return $products
      */
     public function readAll(ProductRepository $productRepository, ParamFetcher $paramFetcher, PaginatorInterface $paginator)
@@ -114,9 +107,10 @@ class ProductController extends AbstractFOSRestController
             $page,
             $limit
         );
-        if ($products->getTotalItemCount() == 0) {
+        if (0 == $products->getTotalItemCount()) {
             return $this->view(['message' => 'Aucun produit'], 200);
         }
+
         return new Paging($products);
     }
 }

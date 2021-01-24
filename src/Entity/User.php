@@ -2,13 +2,13 @@
 
 namespace App\Entity;
 
-use Hateoas\Configuration\Annotation as Hateoas;
-use Doctrine\ORM\Mapping as ORM;
 use App\Repository\UserRepository;
-use JMS\Serializer\Annotation as Serializer;
 use Doctrine\Common\Collections\ArrayCollection;
-use Symfony\Component\Validator\Constraints as Assert;
+use Doctrine\ORM\Mapping as ORM;
+use Hateoas\Configuration\Annotation as Hateoas;
+use JMS\Serializer\Annotation as Serializer;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass=UserRepository::class)
@@ -85,7 +85,7 @@ class User
      * @Assert\Regex(
      *     pattern="#^[^<>]*$#",
      *     match=true,
-     *     message="Les chevrons dans le prenom ne sont pas autorisés!"
+     *     message="Les chevrons dans le prénom ne sont pas autorisés!"
      * )
      * @Assert\Length(
      *      max = 100,

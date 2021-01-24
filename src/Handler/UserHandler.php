@@ -16,6 +16,7 @@ class UserHandler
         $this->emi = $emi;
         $this->cache = $cache;
     }
+
     public function addUser(User $user)
     {
         $this->emi->persist($user);
@@ -26,6 +27,5 @@ class UserHandler
     {
         $this->emi->remove($user);
         $this->emi->flush();
-        //$this->cache->delete('user_' . $user->getId());
     }
 }
