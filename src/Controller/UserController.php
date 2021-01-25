@@ -48,6 +48,10 @@ class UserController extends AbstractFOSRestController
      *         @SWG\Items(ref=@Model(type=User::class))
      *     )
      * )
+     * @SWG\Response(
+     *     response=404,
+     *     description="Return exception, the user does not exist",
+     * )
      * @SWG\Tag(name="user")
      * @Security(name="Bearer")
      *
@@ -132,6 +136,20 @@ class UserController extends AbstractFOSRestController
      *     StatusCode=201
      * )
      * @ParamConverter("user", converter="fos_rest.request_body")
+     * @SWG\Parameter(
+     *   name="User",
+     *   description="Fields to provide to create an user",
+     *   in="body",
+     *   required=true,
+     *   type="string",
+     *   @SWG\Schema(
+     *     type="object",
+     *     title="User field",
+     *     @SWG\Property(property="name", type="string"),
+     *     @SWG\Property(property="first_name", type="string"),
+     *     @SWG\Property(property="mail", type="string")
+     *     )
+     * )
      * @SWG\Response(
      *     response=201,
      *     description="Return user",
@@ -139,6 +157,10 @@ class UserController extends AbstractFOSRestController
      *         type="array",
      *         @SWG\Items(ref=@Model(type=User::class))
      *     )
+     * )
+     * @SWG\Response(
+     *     response=400,
+     *     description="Return exception, syntax error in the query",
      * )
      * @SWG\Tag(name="user")
      * @Security(name="Bearer")
@@ -186,6 +208,10 @@ class UserController extends AbstractFOSRestController
      *         type="array",
      *         @SWG\Items(ref=@Model(type=User::class))
      *     )
+     * )
+     * @SWG\Response(
+     *     response=404,
+     *     description="Return exception, the user does not exist",
      * )
      * @SWG\Tag(name="user")
      * @Security(name="Bearer")

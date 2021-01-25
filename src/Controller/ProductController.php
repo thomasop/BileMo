@@ -40,6 +40,10 @@ class ProductController extends AbstractFOSRestController
      *         @SWG\Items(ref=@Model(type=Product::class))
      *     )
      * )
+     * @SWG\Response(
+     *     response=404,
+     *     description="Return exception, the product does not exist",
+     * )
      * @SWG\Tag(name="product")
      * @Security(name="Bearer")
      *

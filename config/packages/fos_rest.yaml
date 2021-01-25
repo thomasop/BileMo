@@ -15,7 +15,7 @@ fos_rest:
     exception:
         enabled: true
         codes:
-           { App\Exception\ResourceValidationException: 400, App\Exception\IdNotFoundException: 400 }
+           { App\Exception\ResourceValidationException: 400, App\Exception\IdNotFoundException: 404 }
 #        codes:
 #            App\Exception\MyException: 403
 #        messages:
