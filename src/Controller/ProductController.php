@@ -55,7 +55,7 @@ class ProductController extends AbstractFOSRestController
     public function read(Product $product = null, Cache $cache)
     {
         if (!$product) {
-            throw new IdNotFoundException('Le produit demandé n\'éxiste pas');
+            throw new IdNotFoundException('Le produit demandé n\'existe pas');
         }
         $view = $this->view($product);
         $cache->save($view);

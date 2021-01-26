@@ -63,7 +63,7 @@ class UserController extends AbstractFOSRestController
     public function read(User $user = null, Cache $cache)
     {
         if (empty($user)) {
-            throw new IdNotFoundException('L\'utilisateur n\'éxiste pas');
+            throw new IdNotFoundException('L\'utilisateur n\'existe pas');
         }
         $view = $this->view($user);
         $cache->save($view);
@@ -225,7 +225,7 @@ class UserController extends AbstractFOSRestController
     public function delete(User $user = null, UserHandler $userHandler)
     {
         if (!$user) {
-            throw new IdNotFoundException('L\'utilisateur n\'éxiste pas');
+            throw new IdNotFoundException('L\'utilisateur n\'existe pas');
         }
         $userHandler->removeUser($user);
 
