@@ -22,7 +22,7 @@ if ($trustedHosts = $_SERVER['TRUSTED_HOSTS'] ?? false) {
 }
 
 $kernel = new Kernel($_SERVER['APP_ENV'], true);
-if ('dev' === $kernel->getEnvironment()) {
+if ('prod' === $kernel->getEnvironment()) {
     $kernel = new CacheKernel($kernel);
 }
 $request = Request::createFromGlobals();
