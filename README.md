@@ -4,6 +4,7 @@ BileMo
 
 Welcome in your API REST.
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/8cad10b29ad04ec1945e50373e388b55)](https://app.codacy.com/gh/thomasop/BileMo?utm_source=github.com&utm_medium=referral&utm_content=thomasop/BileMo&utm_campaign=Badge_Grade_Settings)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/c1b5a53c1f76435cbf8ba59cdbcb237b)](https://www.codacy.com/gh/thomasop/BileMo/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=thomasop/BileMo&amp;utm_campaign=Badge_Grade)
 
 [![Maintainability](https://api.codeclimate.com/v1/badges/cf0d5acdb153211eb532/maintainability)](https://codeclimate.com/github/thomasop/BileMo/maintainability)
