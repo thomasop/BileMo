@@ -34,7 +34,7 @@ Install composer with composer install and init the projet with composer init in
 ### Database creation
 *  Use the command php bin/console doctrine:database:create for database creation.
 *  Use the command php bin/console doctrine:migrations:migrate for creation of the tables.
-*  Use the command php bin/console doctrine:fixtures:load for load some data in database
+*  Use the command php bin/console doctrine:fixtures:load for load some data in database.
 
 ### Start the project
 At the root of your project use the command php bin/console server:start -d
